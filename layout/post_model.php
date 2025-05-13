@@ -12,9 +12,10 @@
                     }
                 ?>
                 <div class="happening-input">
-                    <input type="text" class="left-post-discription" name="post_description" value="" placeholder="Whats's happening?">
-                    <input type="hidden" name="user_id" value="<?php echo $userDAta['id']; ?>">
+                    <input type="text" class="left-post-discription" maxlength="240" id="post_description_left" name="post_description" oninput="postCharCount()" placeholder="Whats's happening?">
+                    <input type="hidden" name="user_id" value="<?php echo $userDAta['id']; ?>"> 
                 </div>
+                <div id="charCountpost"></div>
             </div>
 
             <div class="post-options">

@@ -100,12 +100,6 @@ if(isset($_SESSION["userid"])){ ?>
         const count = document.getElementById('charCount');
         count.textContent = `${bio.value.length} / 160`;
     }
-
-    function postCharCount() {
-        const posttext = document.getElementById('bio');
-        const count = document.getElementById('charCount');
-        count.textContent = `${bio.value.length} / 160`;
-    }
 </script>
 </html>
 <?php }else{

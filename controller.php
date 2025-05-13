@@ -535,7 +535,7 @@ if (isset($_REQUEST['profile_page_record'])){
                     <textarea id="bio" name="bio" maxlength="160" rows="3" oninput="updateCharCount()"><?php echo $userDAta['bio']?></textarea>
                     <div class="char-count" id="charCount"></div>
                 </div>
-            </form> 
+            </form>
         </div>
     </div>
     <?php

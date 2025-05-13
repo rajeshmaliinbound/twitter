@@ -433,10 +433,13 @@ $(document).ready(function () {
 
     // Open post-btn model 
     $(document).on("click", ".post-btn", function () {
+        $(".left-post-form")[0].reset();
+        $(".left-post-discription").text("");
         $("#post-modal-overlay").fadeIn(300);
     });
 
     $(document).on("click", ".close-post-modal", function () {
+        $(".left-post-form")[0].reset();
         $("#post-modal-overlay").fadeOut(300);
     });
 
@@ -471,9 +474,17 @@ $(document).ready(function () {
                     setTimeout(function() {
                         $('.success-msg').html("");
                         $(".left-post-form")[0].reset();
+                        $("#post-modal-overlay").fadeOut(300);
+                        profilepage();
                     }, 1500);
                 }
             });
         }
     });
 });
+
+    function postCharCount() {
+        const posttext = document.getElementById('post_description_left');
+        const count = document.getElementById('charCountpost');
+        count.textContent = `${posttext.value.length} / 240`;
+    }
