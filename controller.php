@@ -212,6 +212,19 @@ if (isset($_REQUEST['Profilepage'])) {
                 }else{
                 $output = ' Just now';
                 }
+
+                
+                //like Count 
+                $post_Id = $post['id'];
+                $Count_query = "SELECT COUNT(*) AS total FROM twitters_post_likes WHERE post_id = $post_Id";
+                $LikeCount = mysqli_query($conn, $Count_query);
+                $likeData = mysqli_fetch_assoc($LikeCount);
+
+                // check login user liked post
+                $useridd = $_SESSION['login_user_id'];
+                $query_liked_user = "SELECT * FROM twitters_post_likes WHERE user_id = '$useridd' AND post_id = '$post_Id'";
+                $userLiked_query = mysqli_query($conn, $query_liked_user);
+
                 ?>
                 <div class="user-post-details">
                     <div class="post-information">
@@ -244,8 +257,11 @@ if (isset($_REQUEST['Profilepage'])) {
                     ?>
 
                     <div class="post-reactions">
-                        <a class="comment-post"><i class="fa-regular fa-comment"> <span>2</span></i></a>
-                        <a class="like-post"><i class="fa-regular fa-heart"> <span>2</span></i></a>
+                        <a class="like-post" data-post-id="?= $post['id']; ?>">
+                            <i class="<?php if(mysqli_num_rows($userLiked_query) > 0){ echo "fa-solid text-pink fa-heart"; }else{ echo "fa-regular fa-heart"; } ?>"> <span class="like-count"><?php if(!empty($likeData['total'])){ echo $likeData['total']; }else{ echo ""; }?></span></i>
+                        </a>
+
+                        <a class="comment-post"><i class="fa-regular fa-comment"> <span></span></i></a>
                     </div>
 
                     <div class="profile-post-popup">
@@ -260,7 +276,13 @@ if (isset($_REQUEST['Profilepage'])) {
                 </div>
                 <?php
             }
-        }    
+        }else{
+            ?>
+            <div class="highlight-show-Data">
+                <h3>No any post on your profile</h3>
+            </div>
+            <?php
+        }
     }
 
     // for highlight
@@ -387,10 +409,7 @@ if (isset($_REQUEST['user_update'])) {
 }
 
 // profile page record fetch
-if (isset($_REQUEST['profile_page_record'])){
-    // fetch login userData
-    include 'login_user_data.php';
-    
+if (isset($_REQUEST['profile_page_record'])){    
     // include file of left-sidebar 
     include 'layout/left-sidebar.php';
     ?>
@@ -413,6 +432,10 @@ if (isset($_REQUEST['profile_page_record'])){
                         ?>
                 </div>
             </div>
+            <?php
+             // fetch login userData
+            include 'login_user_data.php';
+            ?>
             <div class="post" id="profile-dp-show">
                 <?php if(empty($userDAta['profile_picture'])){ ?>
                     <span><?php echo $_SESSION['firstchr']?></span>
@@ -495,7 +518,7 @@ if (isset($_REQUEST['profile_page_record'])){
                 // for user profile_picture
                 if(empty($userDAta['profile_picture'])){ ?>
                     <div class="profile-pic" onclick="document.getElementById('profile-upload').click();">
-                        <span class="icon">R</span>
+                        <span class="icon"><?php echo $_SESSION['firstchr']; ?></span>
                         <i class="icon" style="color: black;">+</i>
                         <input type="file" name="profile_pic" accept="image/*" id="profile-upload">
                     </div>
@@ -563,5 +586,40 @@ if (isset($_REQUEST['user_post_insert'])) {
     }else{ 
         echo "Post Failed...!";
     }
+}
+
+// like insert & Count operation on ajax request
+if (isset($_REQUEST['post_like_insert'])){
+    $userId = $_SESSION['login_user_id'];
+    $postId = $_POST['post_id'];
+    
+    // Check if already like
+    $check_query = "SELECT * FROM twitters_post_likes WHERE user_id = '$userId' AND post_id = '$postId'";
+    $check = mysqli_query($conn, $check_query);
+
+    if(mysqli_num_rows($check) > 0){
+        // if liked to unlike
+        $delete_like_query = "DELETE FROM twitters_post_likes WHERE user_id = '$userId' AND post_id = '$postId'";
+        mysqli_query($conn,$delete_like_query);
+        $liked = false;
+    } else {
+        // insert like if not liked
+        $like_insert_query = "INSERT INTO twitters_post_likes (`user_id`, `post_id`, `likeable_type`) VALUES ('$userId','$postId','post')";
+        $like_insert_result = mysqli_query($conn,$like_insert_query);
+        if($like_insert_query){
+            $liked = true;
+        }
+    }
+
+    //like Count 
+    $Count_query = "SELECT COUNT(*) AS total FROM twitters_post_likes WHERE post_id = $postId";
+    $LikeCount = mysqli_query($conn, $Count_query);
+    $data = mysqli_fetch_assoc($LikeCount);
+
+    // JSON format me bhejo response
+    echo json_encode([
+        'like_count' => $data['total'],
+        'liked' => $liked
+    ]);
 }
 ?>
